@@ -115,9 +115,19 @@ app.post('/optimize', async (req, res) => {
             .map(msg => msg.content?.[0]?.text?.value || "No valid response.")
             .pop();
 
-        console.log("✅ Optimized Prompt:", lastMessage);
+        console.log("✅ Raw Assistant Response:", lastMessage);
 
-        res.json({ optimizedPrompt: lastMessage });
+        // 🔹 Step 7: Ensure response is parsed as JSON
+        let optimizedResponse;
+        try {
+            optimizedResponse = JSON.parse(lastMessage);
+        } catch (error) {
+            console.error("❌ Error parsing JSON response:", error);
+            return res.status(500).json({ error: "Failed to parse AI response." });
+        }
+
+        // Return the full structured JSON response
+        res.json(optimizedResponse);
 
     } catch (error) {
         console.error("❌ OpenAI API Error:", error.response?.data || error.message);
